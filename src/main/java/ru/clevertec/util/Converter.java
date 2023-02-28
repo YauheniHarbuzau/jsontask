@@ -1,4 +1,4 @@
-package ru.clevertec.util.util;
+package ru.clevertec.util;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -23,11 +23,10 @@ public class Converter {
     public static String objToJson(Object object) {
         Map<String, String> fieldValueMap = objToFieldValueMap(object);
         StringBuilder sb = new StringBuilder();
-        sb.append("{");
         for (Map.Entry<String, String> entry : fieldValueMap.entrySet()) {
             sb.append("\"").append(entry.getKey()).append("\"").append(":").append(entry.getValue()).append(",");
         }
-        return sb.delete(sb.length() - 1, sb.length()).append("}").toString();
+        return String.format("{%s}", sb.delete(sb.length() - 1, sb.length()));
     }
 
     /**
@@ -81,21 +80,21 @@ public class Converter {
                 field.setAccessible(true);
                 if (field.getType() == String.class) {
                     field.set(object, fieldValueMap.get(field.getName()));
-                } else if (field.getType() == Byte.class) {
+                } else if (field.getType().equals(Byte.class) || field.getType().equals(byte.class)) {
                     field.set(object, Byte.parseByte((String) fieldValueMap.get(field.getName())));
-                } else if (field.getType() == Short.class) {
+                } else if (field.getType().equals(Short.class) || field.getType().equals(short.class)) {
                     field.set(object, Short.parseShort((String) fieldValueMap.get(field.getName())));
-                } else if (field.getType() == Integer.class) {
+                } else if (field.getType().equals(Integer.class) || field.getType().equals(int.class)) {
                     field.set(object, Integer.parseInt((String) fieldValueMap.get(field.getName())));
-                } else if (field.getType() == Long.class) {
+                } else if (field.getType().equals(Long.class) || field.getType().equals(long.class)) {
                     field.set(object, Long.parseLong((String) fieldValueMap.get(field.getName())));
-                } else if (field.getType() == Float.class) {
+                } else if (field.getType().equals(Float.class) || field.getType().equals(float.class)) {
                     field.set(object, Float.parseFloat((String) fieldValueMap.get(field.getName())));
-                } else if (field.getType() == Double.class) {
+                } else if (field.getType().equals(Double.class) || field.getType().equals(double.class)) {
                     field.set(object, Double.parseDouble((String) fieldValueMap.get(field.getName())));
-                } else if (field.getType() == Boolean.class) {
+                } else if (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class)) {
                     field.set(object, Boolean.parseBoolean((String) fieldValueMap.get(field.getName())));
-                } else if (field.getType() == Character.class) {
+                } else if (field.getType().equals(Character.class) || field.getType().equals(char.class)) {
                     field.set(object, ((String) fieldValueMap.get(field.getName())).charAt(0));
                 }
                 field.setAccessible(false);

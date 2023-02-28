@@ -1,9 +1,9 @@
-package ru.clevertec.util;
+package ru.clevertec;
 
-import ru.clevertec.util.entity.Person;
+import ru.clevertec.entity.Person;
 
-import static ru.clevertec.util.util.Converter.jsonToObj;
-import static ru.clevertec.util.util.Converter.objToJson;
+import static ru.clevertec.util.Converter.jsonToObj;
+import static ru.clevertec.util.Converter.objToJson;
 
 public class Main {
 

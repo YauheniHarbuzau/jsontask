@@ -1,4 +1,4 @@
-package ru.clevertec.util.entity;
+package ru.clevertec.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
