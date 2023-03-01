@@ -1,11 +1,16 @@
 package ru.clevertec.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static java.util.Arrays.stream;
+import static java.util.Collections.singleton;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -54,14 +59,81 @@ public class Converter {
      * @param object объект/сущность
      * @param field  поле объекта/сущности
      * @return значение поля в формате строки (String)
+     * @see #arrayToString(Object)
+     * @see #collectionToString(Collection)
+     * @see #mapToString(Map)
      */
     private static String valueToString(Object object, Field field) {
         try {
-            return field.getType() == String.class || field.getType() == Character.class ?
-                    "\"" + field.get(object) + "\"" : String.valueOf(field.get(object));
+            if (field.getType().isArray()) {
+                return arrayToString(field.get(object));
+            } else if (field.get(object) instanceof Collection) {
+                return collectionToString(singleton(field.get(object)));
+            } else if (field.get(object) instanceof Map) {
+                return mapToString((Map<?, ?>) field.get(object));
+            } else if (field.getType().equals(String.class) || field.getType().equals(Character.class)) {
+                return "\"" + field.get(object) + "\"";
+            } else {
+                return String.valueOf(field.get(object));
+            }
         } catch (IllegalAccessException e) {
             return "";
         }
+    }
+
+    /**
+     * Приведение массива к формату строки
+     *
+     * @param fieldValue значение поля объекта/сущности
+     * @return значение поля в формате строки (String)
+     */
+    private static String arrayToString(Object fieldValue) {
+        int length = Array.getLength(fieldValue);
+        Object[] array = new Object[length];
+        for (int i = 0; i < length; i++) {
+            Object obj = Array.get(fieldValue, i);
+            array[i] = obj;
+        }
+        return Arrays.stream(array)
+                .map(i -> (i instanceof String || i instanceof Character) ? "\"" + i + "\"" : i)
+                .collect(toList())
+                .toString()
+                .replaceAll(" ", "");
+    }
+
+    /**
+     * Приведение коллекции к формату строки
+     *
+     * @param collection значение поля объекта/сущности - коллекция
+     * @return значение поля в формате строки (String)
+     */
+    private static String collectionToString(Collection<?> collection) {
+        String result = collection.stream()
+                .map(i -> (i instanceof String || i instanceof Character) ? "\"" + i + "\"" : i)
+                .collect(toList())
+                .toString()
+                .replaceAll(" ", "");
+        return result.substring(1, result.length() - 1);
+    }
+
+    /**
+     * Приведение мап к формату строки
+     *
+     * @param map значение поля объекта/сущности - мап
+     * @return значение поля в формате строки (String)
+     */
+    private static String mapToString(Map<?, ?> map) {
+        return String.format(
+                "{%s}",
+                map.entrySet()
+                        .stream()
+                        .map(i -> (i.getValue() instanceof String || i.getValue() instanceof Character) ?
+                                String.format("\"%s\":\"%s\"}", i.getKey(), i.getValue()) :
+                                String.format("\"%s\":%s}", i.getKey(), i.getValue()))
+                        .collect(toList())
+                        .toString()
+                        .replaceAll("[ {}\\[\\]]", "")
+        );
     }
 
     /**
